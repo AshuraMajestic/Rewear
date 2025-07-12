@@ -1,6 +1,13 @@
-import { Search, Heart, Recycle, Users, Shirt, Star, ArrowRight} from 'lucide-react';
+import { Heart, Recycle, Users, Shirt, Star, ArrowRight } from 'lucide-react';
+import { useNavigate } from 'react-router-dom';
+import Footer from '../../components/Footer';
 
 const Home = () => {
+  const navigate = useNavigate();
+
+  const handleClick = (path: string) => {
+    navigate(path);
+  };
 
   const featuredItems = [
     {
@@ -50,42 +57,31 @@ const Home = () => {
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-emerald-50 via-white to-blue-50">
-      {/* Hero Section */}
       <section className="pt-16 pb-20 px-4 sm:px-6 lg:px-8">
         <div className="max-w-7xl mx-auto">
           <div className="text-center">
             <h1 className="text-4xl md:text-6xl font-bold text-gray-900 mb-6">
-              Swap, Share, 
+              Swap, Share,
               <span className="bg-gradient-to-r from-emerald-600 to-blue-600 bg-clip-text text-transparent">
                 {" "}Sustain
               </span>
             </h1>
             <p className="text-xl text-gray-600 mb-8 max-w-3xl mx-auto">
-              Transform your wardrobe sustainably. Exchange unused clothing through direct swaps 
+              Transform your wardrobe sustainably. Exchange unused clothing through direct swaps
               or our point-based system. Join thousands reducing textile waste while discovering unique pieces.
             </p>
-            
+
             {/* CTA Buttons */}
             <div className="flex flex-col sm:flex-row gap-4 justify-center mb-16">
-              <button className="bg-gradient-to-r from-emerald-500 to-blue-500 text-white px-8 py-4 rounded-full text-lg font-semibold hover:from-emerald-600 hover:to-blue-600 transition-all transform hover:scale-105 shadow-lg">
+              <button onClick={() => handleClick("/items")} className="bg-gradient-to-r from-emerald-500 to-blue-500 text-white px-8 py-4 rounded-full text-lg font-semibold hover:from-emerald-600 hover:to-blue-600 transition-all transform hover:scale-105 shadow-lg">
                 Start Swapping
               </button>
-              <button className="border-2 border-emerald-500 text-emerald-600 px-8 py-4 rounded-full text-lg font-semibold hover:bg-emerald-50 transition-all">
+              <button onClick={() => handleClick("/items")} className="border-2 border-emerald-500 text-emerald-600 px-8 py-4 rounded-full text-lg font-semibold hover:bg-emerald-50 transition-all">
                 Browse Items
               </button>
-              <button className="bg-white text-gray-700 px-8 py-4 rounded-full text-lg font-semibold hover:bg-gray-50 transition-all border border-gray-300">
+              <button onClick={() => handleClick("/profile")} className="bg-white text-gray-700 px-8 py-4 rounded-full text-lg font-semibold hover:bg-gray-50 transition-all border border-gray-300">
                 List an Item
               </button>
-            </div>
-
-            {/* Search Bar */}
-            <div className="max-w-2xl mx-auto relative">
-              <Search className="absolute left-4 top-1/2 transform -translate-y-1/2 text-gray-400 w-5 h-5" />
-              <input
-                type="text"
-                placeholder="Search for items, brands, or categories..."
-                className="w-full pl-12 pr-4 py-4 rounded-full border border-gray-300 focus:border-emerald-500 focus:ring-2 focus:ring-emerald-200 outline-none text-lg"
-              />
             </div>
           </div>
         </div>
@@ -124,8 +120,8 @@ const Home = () => {
             {featuredItems.map((item) => (
               <div key={item.id} className="group bg-white rounded-2xl overflow-hidden shadow-lg hover:shadow-xl transition-all transform hover:-translate-y-1">
                 <div className="aspect-square overflow-hidden">
-                  <img 
-                    src={item.image} 
+                  <img
+                    src={item.image}
                     alt={item.title}
                     className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
                   />
@@ -179,7 +175,7 @@ const Home = () => {
               </div>
               <h3 className="text-xl font-semibold mb-4">List Your Items</h3>
               <p className="text-gray-600">
-                Upload photos and details of clothing you no longer wear. 
+                Upload photos and details of clothing you no longer wear.
                 Our community values quality and authenticity.
               </p>
             </div>
@@ -190,7 +186,7 @@ const Home = () => {
               </div>
               <h3 className="text-xl font-semibold mb-4">Swap or Redeem</h3>
               <p className="text-gray-600">
-                Choose direct swaps with other users or use points earned 
+                Choose direct swaps with other users or use points earned
                 from your listings to redeem items you love.
               </p>
             </div>
@@ -201,66 +197,14 @@ const Home = () => {
               </div>
               <h3 className="text-xl font-semibold mb-4">Refresh Your Style</h3>
               <p className="text-gray-600">
-                Discover unique pieces while contributing to a more 
+                Discover unique pieces while contributing to a more
                 sustainable fashion ecosystem.
               </p>
             </div>
           </div>
         </div>
       </section>
-
-      {/* Footer */}
-      <footer className="bg-gray-900 text-white py-12">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="grid grid-cols-1 md:grid-cols-4 gap-8">
-            <div>
-              <div className="flex items-center space-x-2 mb-4">
-                <div className="w-8 h-8 bg-gradient-to-br from-emerald-500 to-blue-500 rounded-lg flex items-center justify-center">
-                  <Recycle className="w-5 h-5 text-white" />
-                </div>
-                <span className="text-xl font-bold">ReWear</span>
-              </div>
-              <p className="text-gray-400">
-                Making fashion sustainable, one swap at a time.
-              </p>
-            </div>
-            
-            <div>
-              <h4 className="font-semibold mb-4">Platform</h4>
-              <ul className="space-y-2 text-gray-400">
-                <li><a href="#" className="hover:text-white transition-colors">Browse Items</a></li>
-                <li><a href="#" className="hover:text-white transition-colors">List an Item</a></li>
-                <li><a href="#" className="hover:text-white transition-colors">How It Works</a></li>
-                <li><a href="#" className="hover:text-white transition-colors">Community</a></li>
-              </ul>
-            </div>
-
-            <div>
-              <h4 className="font-semibold mb-4">Support</h4>
-              <ul className="space-y-2 text-gray-400">
-                <li><a href="#" className="hover:text-white transition-colors">Help Center</a></li>
-                <li><a href="#" className="hover:text-white transition-colors">Contact Us</a></li>
-                <li><a href="#" className="hover:text-white transition-colors">Guidelines</a></li>
-                <li><a href="#" className="hover:text-white transition-colors">Safety</a></li>
-              </ul>
-            </div>
-
-            <div>
-              <h4 className="font-semibold mb-4">Connect</h4>
-              <ul className="space-y-2 text-gray-400">
-                <li><a href="#" className="hover:text-white transition-colors">Newsletter</a></li>
-                <li><a href="#" className="hover:text-white transition-colors">Instagram</a></li>
-                <li><a href="#" className="hover:text-white transition-colors">Twitter</a></li>
-                <li><a href="#" className="hover:text-white transition-colors">Facebook</a></li>
-              </ul>
-            </div>
-          </div>
-          
-          <div className="border-t border-gray-800 mt-12 pt-8 text-center text-gray-400">
-            <p>&copy; 2025 ReWear. All rights reserved. Building a sustainable future together.</p>
-          </div>
-        </div>
-      </footer>
+      <Footer />
     </div>
   );
 };

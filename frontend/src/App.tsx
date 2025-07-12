@@ -6,6 +6,8 @@ import SignupForm from './pages/auth/Signup';
 import LoginForm from './pages/auth/Login';
 import Home from './pages/home/Home';
 import Navbar from './components/Navbar';
+import Profile from './pages/profile/Profile';
+import Footer from './components/Footer';
 
 interface ProtectedRouteProps {
   children: ReactNode;
@@ -77,16 +79,16 @@ function App() {
         <Route path='/' element={<Home/>}/>
         <Route path='/auth/signup' element={<SignupForm/>}/>
         <Route path='/auth/login' element={<LoginForm/>}/>
-        {/* <Route
+        <Route
             path='/profile'
             element={
               <ProtectedRoute>
-                <Prfile />
+                <Profile />
               </ProtectedRoute>
             }
-          /> */}
+          />
       </Routes>
-      
+      {!isAuthRoute && <Footer />}
       
     </div>
   )
