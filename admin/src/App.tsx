@@ -6,6 +6,7 @@ import { Navigate, Route, Routes, useLocation } from 'react-router-dom';
 import { useEffect, useState, type ReactNode } from 'react';
 import Login from './pages/auth/Login';
 import AdminDashboard from './pages/dashboard/dashboard';
+import Navbar from './components/Navbar';
 
 
 interface ProtectedRouteProps {
@@ -27,7 +28,7 @@ const ProtectedRoute = ({ children }: ProtectedRouteProps) => {
       }
 
       try {
-        const response = await fetch(`${import.meta.env.VITE_APP_API_URL}/admin/get-admin`, {
+        const response = await fetch(`${import.meta.env.VITE_APP_API_URL}/get-admin`, {
           method: 'GET',
           headers: {
             'Authorization': `Bearer ${token}`,
@@ -68,13 +69,45 @@ function App() {
   return (
     <>
       <ToastContainer />
-      {/* {isAdminRoute && <Navbar />} */}
+      {isAdminRoute && <Navbar />}
       
       <Routes>
         <Route path="/auth/admin/login" element={<Login />} />
 
         <Route
           path="/admin/dashboard"
+          element={
+            <ProtectedRoute>
+              <AdminDashboard />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/admin/users"
+          element={
+            <ProtectedRoute>
+              <AdminDashboard />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/admin/items"
+          element={
+            <ProtectedRoute>
+              <AdminDashboard />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/admin/exchanges"
+          element={
+            <ProtectedRoute>
+              <AdminDashboard />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/admin/requests"
           element={
             <ProtectedRoute>
               <AdminDashboard />

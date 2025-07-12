@@ -13,7 +13,7 @@ const Login = () => {
     setIsLoading(true);
 
     try {
-      const response = await fetch(`${import.meta.env.VITE_APP_API_URL}/admin/login`, {
+      const response = await fetch(`${import.meta.env.VITE_APP_API_URL}/login`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',

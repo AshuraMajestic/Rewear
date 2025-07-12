@@ -1,6 +1,9 @@
 import jwt from 'jsonwebtoken';
+import ItemModel from '../models/ClothModel.js';
+import UserModel from '../models/UserModel.js';
+import SwapModel from '../models/SwapModel.js';
 
-const verifyAdmin = async (req, res, next) => {
+export const verifyAdmin = async (req, res, next) => {
   try {
     const token = req.headers.authorization?.replace('Bearer ', '');
 
@@ -59,7 +62,7 @@ export const adminLogin = async (req, res) => {
     const adminEmail = process.env.ADMIN_EMAIL;
     const adminPassword = process.env.ADMIN_PASSWORD;
     const jwtSecret = process.env.JWT_SECRET || 'your-default-secret';
-
+    
     // Check if environment variables are set
     if (!adminEmail || !adminPassword) {
       console.error('Admin credentials not found in environment variables');
@@ -122,13 +125,6 @@ export const getAdmin = async (req, res) => {
     // Verify the token
     const decoded = jwt.verify(token, jwtSecret);
 
-    // Check if it's an admin token
-    if (decoded.role !== 'admin') {
-      return res.status(403).json({
-        success: false,
-        message: 'Access denied'
-      });
-    }
     if (decoded.email !== adminEmail) {
       return res.status(403).json({
         success: false,
@@ -153,3 +149,30 @@ export const getAdmin = async (req, res) => {
   }
 };
 
+export const getDashboardMetrics = async (req, res) => {
+  try {
+    const usersCount = await UserModel.countDocuments();
+
+    const itemsCount = await ItemModel.countDocuments();
+
+    const itemsExchanged = await SwapModel.countDocuments({ status: 'accepted' });
+
+    const itemsRequested = await SwapModel.countDocuments();
+
+    return res.json({
+      success: true,
+      data: {
+        usersCount,
+        itemsCount,
+        itemsExchanged,
+        itemsRequested
+      }
+    });
+  } catch (error) {
+    console.error('Error fetching dashboard metrics:', error);
+    return res.status(500).json({
+      success: false,
+      message: 'Internal server error'
+    });
+  }
+};
