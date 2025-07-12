@@ -87,9 +87,10 @@ export const getItemsByUser = async (req, res) => {
 // Update an existing item
 export const updateItem = async (req, res) => {
   try {
-    const userId = req.user.id;
-    const user = await UserModel.findById(userId).select('-password');
-    if (!user) {
+     const {userId} = req.user
+    const userData = await UserModel.findById(userId).select('-password')
+
+    if (!userData) {
       return res.status(401).json({ success: false, message: 'Unauthorized' });
     }
 
@@ -123,7 +124,12 @@ export const updateItem = async (req, res) => {
 // Delete an item
 export const deleteItem = async (req, res) => {
   try {
-    const userId = req.user.id;
+     const {userId} = req.user
+    const userData = await UserModel.findById(userId).select('-password')
+
+    if (!userData) {
+      return res.status(401).json({ success: false, message: 'Unauthorized' });
+    }
     const item = await ItemModel.findById(req.params.id);
     if (!item) {
       return res.status(404).json({ success: false, message: 'Item not found' });
@@ -134,7 +140,7 @@ export const deleteItem = async (req, res) => {
       return res.status(403).json({ success: false, message: 'Forbidden' });
     }
 
-    await item.remove();
+    await item.deleteOne();
     res.json({ success: true, message: 'Item deleted' });
   } catch (error) {
     console.error(error);
