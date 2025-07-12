@@ -16,7 +16,11 @@ discarding them.
 - Roshan Bhagat - palroshan7850@gmail.com
 - Krutva Patel - kpatel077568@gmail.com
   
-# Video Url
-https://app.screencastify.com/watch/xo40MkeffnMhzq3OkKtH
+# Video Url (Propject explanation)
+
+screen castify link(Need login) : https://app.screencastify.com/watch/xo40MkeffnMhzq3OkKtH
+
+google drive link: https://drive.google.com/file/d/1crdw20Lo_yN-SF4PuEz-hH80ValEKBXk/view?usp=sharing
+
 
 ## (I will add drive link here as the project was big i need time to record it. Sorry and then you)
