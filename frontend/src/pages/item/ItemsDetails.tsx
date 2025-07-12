@@ -15,6 +15,7 @@ export default function ItemsDetails() {
   const [notification, setNotification] =
     useState<{ message: string; type: 'success' | 'error' } | null>(null);
 
+  
   const fetchItem = async () => {
     setLoading(true);
     try {
@@ -70,6 +71,22 @@ export default function ItemsDetails() {
     fetchItem();
     checkAuth();
   }, [id]);
+
+  const incrementViews=async()=>{
+    const token =localStorage.getItem('token')
+    if(token){
+    const response = await fetch(`${import.meta.env.VITE_APP_API_URL}/cloth/inc-item/${id.id}`, {
+        method: 'GET',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${token}`,
+        }
+      });
+      }
+  }
+  useEffect(() => {
+    incrementViews()
+  }, []);
 
   const showNotification = (
     message: string,

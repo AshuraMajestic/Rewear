@@ -208,3 +208,42 @@ export const deleteItem = async (req, res) => {
     res.status(500).json({ success: false, error: error.message });
   }
 };
+
+export const incrementItemViews = async (req, res) => {
+  try {
+    const { userId } = req.user;        // from protect middleware
+    const { id } = req.params;
+
+    // fetch the item to check ownership
+    const item = await ItemModel.findById(id).select('user');
+    if (!item) {
+      return res.status(404).json({ success: false, message: 'Item not found' });
+    }
+
+    if (item.user.toString() === userId) {
+      return res.status(403).json({
+        success: false,
+        message: 'Owners cannot increment views on their own item'
+      });
+    }
+
+    // now atomically increment
+    const updated = await ItemModel.findByIdAndUpdate(
+      id,
+      { $inc: { views: 1 } },
+      { new: true, select: 'views' }
+    );
+
+    return res.json({
+      success: true,
+      message: 'View count incremented',
+      views: updated.views
+    });
+  } catch (err) {
+    console.error('Error incrementing item views:', err);
+    return res.status(500).json({
+      success: false,
+      message: 'Internal server error'
+    });
+  }
+};

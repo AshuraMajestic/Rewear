@@ -74,7 +74,6 @@ export default function Navbar() {
                     <div className="hidden md:flex items-center space-x-8">
                         <a href="/items" className="text-gray-700 hover:text-emerald-600 transition-colors">Browse Items</a>
                         <a href="/works" className="text-gray-700 hover:text-emerald-600 transition-colors">How It Works</a>
-                        <a href="/community" className="text-gray-700 hover:text-emerald-600 transition-colors">Community</a>
                         <a href="/about" className="text-gray-700 hover:text-emerald-600 transition-colors">About</a>
                     </div>
 
@@ -132,7 +131,6 @@ export default function Navbar() {
                         <div className="px-2 pt-2 pb-3 space-y-1">
                             <a href="/items" className="block px-3 py-2 text-gray-700 hover:text-emerald-600">Browse Items</a>
                             <a href="/works" className="block px-3 py-2 text-gray-700 hover:text-emerald-600">How It Works</a>
-                            <a href="/community" className="block px-3 py-2 text-gray-700 hover:text-emerald-600">Community</a>
                             <a href="/about" className="block px-3 py-2 text-gray-700 hover:text-emerald-600">About</a>
                             
                             <div className="pt-2 border-t border-gray-200">

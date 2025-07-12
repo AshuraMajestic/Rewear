@@ -22,7 +22,6 @@ export default function Footer() {
                 <li><a href="/items" className="hover:text-white transition-colors">Browse Items</a></li>
                 <li><a href="/profile" className="hover:text-white transition-colors">List an Item</a></li>
                 <li><a href="/works" className="hover:text-white transition-colors">How It Works</a></li>
-                <li><a href="/community" className="hover:text-white transition-colors">Community</a></li>
               </ul>
             </div>
 
@@ -31,8 +30,6 @@ export default function Footer() {
               <ul className="space-y-2 text-gray-400">
                 <li><a href="/help" className="hover:text-white transition-colors">Help Center</a></li>
                 <li><a href="/contact" className="hover:text-white transition-colors">Contact Us</a></li>
-                <li><a href="/guidelines" className="hover:text-white transition-colors">Guidelines</a></li>
-                <li><a href="/safety" className="hover:text-white transition-colors">Safety</a></li>
               </ul>
             </div>
 
