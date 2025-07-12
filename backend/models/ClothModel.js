@@ -45,7 +45,7 @@ const itemSchema = new mongoose.Schema({
     enum: ['available', 'exchanged'],
     default: 'available'
   },
-  points:{
+  point:{
     type: Number,
     min: 0,
     required:true
