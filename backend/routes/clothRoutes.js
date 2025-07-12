@@ -1,13 +1,14 @@
 import express from 'express'
-import { createItem ,DeleteItem,UpdateItem,getItems } from '../controller/clothcontroller.js'
+import { createItem ,DeleteItem,UpdateItem,getItems,getItemById } from '../controller/clothcontroller.js'
 import  authUser  from '../middleware/authUser.js'
 
 const clothRouter = express.Router()
 
-userRouter.post('/add-item',authUser,createItem )
-userRouter.post('/get-items',getItems)
-userRouter.post('/get-items-user',authUser,getItemsByUser)
-userRouter.post('/delete-item',authUser,DeleteItem)
-userRouter.post('/update-item',authUser,UpdateItem)
+clothRouter.post('/add-item',authUser,createItem )
+clothRouter.get('/get-items',getItems)
+clothRouter.get('/get-items-user',authUser,getItemsByUser)
+clothRouter.post('/get-item-by-id/:id',getItemById)
+clothRouter.post('/delete-item/:id',authUser,DeleteItem)
+clothRouter.put('/update-item/:id',authUser,UpdateItem)
 
 export default clothRouter;
