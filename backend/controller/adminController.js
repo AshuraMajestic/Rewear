@@ -329,11 +329,6 @@ export const getAllItemsAdmin = async (req, res) => {
   }
 };
 
-
-/**
- * DELETE /admin/items/:id
- * Permanently delete an item by its ID.
- */
 export const deleteItemAdmin = async (req, res) => {
   try {
     const { id } = req.params;
@@ -346,5 +341,270 @@ export const deleteItemAdmin = async (req, res) => {
   } catch (err) {
     console.error('Error deleting item:', err);
     res.status(500).json({ success: false, message: 'Internal server error' });
+  }
+};
+
+export const getAdminSwapRequests = async (req, res) => {
+  try {
+    const search = req.query.search || '';
+    const status = req.query.status || 'all';
+    const pageNum = Math.max(parseInt(req.query.page, 10) || 1, 1);
+    const perPage = Math.max(parseInt(req.query.limit, 10) || 10, 1);
+
+    // Build match stage
+    const match = {};
+    if (status !== 'all') {
+      match.status = status;
+    }
+
+    // regex for search
+    const regex = search.trim()
+      ? { $regex: search.trim(), $options: 'i' }
+      : null;
+
+    // Base pipeline: filter by status
+    const pipeline = [
+      { $match: match },
+
+      // populate requester - use addFields instead of unwind to handle missing data
+      {
+        $lookup: {
+          from: 'users',
+          localField: 'requester',
+          foreignField: '_id',
+          as: 'requesterData'
+        }
+      },
+      {
+        $addFields: {
+          requester: { $arrayElemAt: ['$requesterData', 0] }
+        }
+      },
+
+      // populate owner - use addFields instead of unwind to handle missing data
+      {
+        $lookup: {
+          from: 'users',
+          localField: 'owner',
+          foreignField: '_id',
+          as: 'ownerData'
+        }
+      },
+      {
+        $addFields: {
+          owner: { $arrayElemAt: ['$ownerData', 0] }
+        }
+      },
+
+      // populate requested item - use addFields instead of unwind to handle missing data
+      {
+        $lookup: {
+          from: 'items',
+          localField: 'itemRequested',
+          foreignField: '_id',
+          as: 'itemRequestedData'
+        }
+      },
+      {
+        $addFields: {
+          itemRequested: { $arrayElemAt: ['$itemRequestedData', 0] }
+        }
+      },
+
+      // populate offered item (may be null)
+      {
+        $lookup: {
+          from: 'items',
+          localField: 'itemOffered',
+          foreignField: '_id',
+          as: 'itemOfferedData'
+        }
+      },
+      {
+        $addFields: {
+          itemOffered: { $arrayElemAt: ['$itemOfferedData', 0] }
+        }
+      },
+
+      // Filter out documents with missing required references
+      {
+        $match: {
+          requester: { $exists: true, $ne: null },
+          owner: { $exists: true, $ne: null },
+          itemRequested: { $exists: true, $ne: null }
+        }
+      }
+    ];
+
+    // apply search filter
+    if (regex) {
+      pipeline.push({
+        $match: {
+          $or: [
+            { 'requester.name': regex },
+            { 'owner.name': regex },
+            { 'itemRequested.name': regex },
+            { 'itemOffered.name': regex }
+          ]
+        }
+      });
+    }
+
+    // count total
+    const countResult = await SwapModel.aggregate([
+      ...pipeline,
+      { $count: 'total' }
+    ]);
+    const totalItems = (countResult[0] && countResult[0].total) || 0;
+    const totalPages = Math.ceil(totalItems / perPage);
+
+    // apply sorting & pagination
+    pipeline.push({ $sort: { createdAt: -1 } });
+    pipeline.push({ $skip: (pageNum - 1) * perPage });
+    pipeline.push({ $limit: perPage });
+
+    // project only necessary fields
+    pipeline.push({
+      $project: {
+        requester: { 
+          _id: 1, 
+          name: 1, 
+          email: 1, 
+          avatar: { $ifNull: ['$requester.avatar', null] }
+        },
+        owner: { 
+          _id: 1, 
+          name: 1, 
+          email: 1, 
+          avatar: { $ifNull: ['$owner.avatar', null] }
+        },
+        itemRequested: {
+          _id: 1, 
+          name: 1, 
+          description: 1, 
+          category: 1, 
+          condition: 1, 
+          images: 1
+        },
+        itemOffered: {
+          _id: 1, 
+          name: 1, 
+          description: 1, 
+          category: 1, 
+          condition: 1, 
+          images: 1
+        },
+        pointsUsed: 1,
+        status: 1,
+        createdAt: 1,
+        updatedAt: 1
+      }
+    });
+
+    const swapRequests = await SwapModel.aggregate(pipeline);
+
+    return res.json({
+      success: true,
+      data: {
+        swapRequests,
+        pagination: {
+          totalItems,
+          totalPages,
+          currentPage: pageNum,
+          itemsPerPage: perPage,
+          hasNextPage: pageNum < totalPages,
+          hasPrevPage: pageNum > 1
+        }
+      }
+    });
+  }
+  catch (err) {
+    console.error('Error in getAdminSwapRequests:', err);
+    return res.status(500).json({
+      success: false,
+      message: 'Internal server error',
+      error: process.env.NODE_ENV === 'development' ? err.message : undefined
+    });
+  }
+};
+
+/**
+ * DELETE /admin/swap-requests/:id
+ */
+export const deleteAdminSwapRequest = async (req, res) => {
+  try {
+    const { id } = req.params;
+    
+    // Validate ObjectId format
+    if (!id.match(/^[0-9a-fA-F]{24}$/)) {
+      return res.status(400).json({
+        success: false,
+        message: 'Invalid swap request ID format'
+      });
+    }
+
+    const swapRequest = await SwapModel.findById(id);
+    if (!swapRequest) {
+      return res.status(404).json({
+        success: false,
+        message: 'Swap request not found'
+      });
+    }
+
+    await SwapModel.findByIdAndDelete(id);
+    
+    return res.json({ 
+      success: true, 
+      message: 'Swap request deleted successfully'
+    });
+  }
+  catch (err) {
+    console.error('Error in deleteAdminSwapRequest:', err);
+    return res.status(500).json({
+      success: false,
+      message: 'Internal server error',
+      error: process.env.NODE_ENV === 'development' ? err.message : undefined
+    });
+  }
+};
+
+/**
+ * GET /admin/swap-requests/stats
+ */
+export const getSwapRequestStats = async (req, res) => {
+  try {
+    const stats = await SwapModel.aggregate([
+      {
+        $group: {
+          _id: '$status',
+          count: { $sum: 1 },
+          totalPoints: { $sum: '$pointsUsed' }
+        }
+      }
+    ]);
+
+    const totalRequests = await SwapModel.countDocuments();
+    const totalPoints = await SwapModel.aggregate([
+      { $group: { _id: null, total: { $sum: '$pointsUsed' } } }
+    ]);
+
+    return res.json({
+      success: true,
+      data: {
+        totalRequests,
+        totalPoints: totalPoints[0]?.total || 0,
+        statusBreakdown: stats,
+        activeRequests: stats
+          .filter(s => ['requested', 'accepted', 'shipped'].includes(s._id))
+          .reduce((sum, s) => sum + s.count, 0)
+      }
+    });
+  }
+  catch (err) {
+    console.error('Error in getSwapRequestStats:', err);
+    return res.status(500).json({
+      success: false,
+      message: 'Internal server error'
+    });
   }
 };
