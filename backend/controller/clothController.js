@@ -68,9 +68,10 @@ export const getItemById = async (req, res) => {
 // Get all items for the current user
 export const getItemsByUser = async (req, res) => {
   try {
-    const userId = req.user.id;
-    const user = await UserModel.findById(userId).select('-password');
-    if (!user) {
+     const {userId} = req.user
+    const userData = await UserModel.findById(userId).select('-password')
+
+    if (!userData) {
       return res.status(401).json({ success: false, message: 'Unauthorized' });
     }
 

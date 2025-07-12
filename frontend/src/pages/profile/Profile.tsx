@@ -1,5 +1,5 @@
 import  { useEffect, useState } from 'react';
-import { User, Package, ArrowLeftRight, Star, Edit3, MapPin, Calendar, Eye, Trash2, CheckCircle, XCircle, Clock, Truck, Gift, type IconNode, Icon } from 'lucide-react';
+import { User, Package, ArrowLeftRight, Star, Edit3,  Calendar, Eye, Trash2, CheckCircle, XCircle, Clock, Truck, Gift,} from 'lucide-react';
 import type { UserData } from '../../types/User';
 import { useNavigate } from 'react-router-dom';
 import type { Items } from '../../types/Items';
@@ -62,7 +62,7 @@ export default function Profile() {
               });
     
               const data = await response.json();
-    
+              console.log(data)
               if (data.success) {
                 setUserItems(data.items)
               }
@@ -76,7 +76,7 @@ export default function Profile() {
         };
     
         getData();
-      }, [userItems]);
+      }, []);
 
 
 
