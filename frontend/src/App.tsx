@@ -12,6 +12,8 @@ import EditItem from './pages/item/EditItem';
 import AddItem from './pages/item/AddEditForm';
 import Items from './pages/item/Items';
 import ItemsDetails from './pages/item/ItemsDetails';
+import Works from './pages/others/works';
+import About from './pages/others/About';
 
 interface ProtectedRouteProps {
   children: ReactNode;
@@ -85,6 +87,8 @@ function App() {
         <Route path='/auth/login' element={<LoginForm/>}/>
         <Route path='/items' element={<Items/>}/>
         <Route path='/items-detail/:id' element={<ItemsDetails/>}/>
+        <Route path='/works' element={<Works/>}/>
+        <Route path='/about' element={<About/>}/>
         <Route
             path='/profile'
             element={
