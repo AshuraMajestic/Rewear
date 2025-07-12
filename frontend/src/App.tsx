@@ -8,6 +8,7 @@ import Home from './pages/home/Home';
 import Navbar from './components/Navbar';
 import Profile from './pages/profile/Profile';
 import Footer from './components/Footer';
+import AddItem from './pages/item/AddItem';
 
 interface ProtectedRouteProps {
   children: ReactNode;
@@ -84,6 +85,14 @@ function App() {
             element={
               <ProtectedRoute>
                 <Profile />
+              </ProtectedRoute>
+            }
+          />
+        <Route
+            path='/addItem'
+            element={
+              <ProtectedRoute>
+                <AddItem />
               </ProtectedRoute>
             }
           />
