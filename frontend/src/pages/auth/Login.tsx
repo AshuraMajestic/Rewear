@@ -94,9 +94,9 @@ const LoginForm = () => {
         <div className="bg-gradient-to-br from-indigo-500 to-purple-600 flex flex-col justify-center items-center text-white text-center p-10 relative overflow-hidden">
           <div className="absolute inset-0 bg-black/20"></div>
           <div className="relative z-10">
-            <h1 className="text-5xl font-bold mb-4 tracking-wide">HOMESS</h1>
+            <h1 className="text-5xl font-bold mb-4 tracking-wide">ReWear</h1>
             <p className="text-lg opacity-90 leading-relaxed max-w-sm">
-              Welcome back! Sign in to access your real estate dashboard and manage your properties.
+              Welcome back! Sign in to access the rewaer features.
             </p>
           </div>
           <div className="absolute top-0 left-0 w-48 h-48 bg-white/10 rounded-full -translate-y-24 -translate-x-24"></div>

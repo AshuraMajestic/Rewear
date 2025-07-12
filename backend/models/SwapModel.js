@@ -1,4 +1,4 @@
-const mongoose = require('mongoose');
+import mongoose from 'mongoose'
 
 const swapSchema = new mongoose.Schema({
   requester: {
@@ -35,4 +35,5 @@ const swapSchema = new mongoose.Schema({
   timestamps: true
 });
 
-module.exports = mongoose.model('Swap', swapSchema);
+const SwapModel = mongoose.model("Swap", swapSchema);
+export default SwapModel;

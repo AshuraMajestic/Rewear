@@ -5,6 +5,7 @@ import { useEffect, useState, type ReactNode } from 'react'
 import SignupForm from './pages/auth/Signup';
 import LoginForm from './pages/auth/Login';
 import Home from './pages/home/Home';
+import Navbar from './components/Navbar';
 
 interface ProtectedRouteProps {
   children: ReactNode;
@@ -70,7 +71,7 @@ function App() {
      <div>
       <ToastContainer />
     
-        {/* <Navbar /> */}
+        {!isAuthRoute && <Navbar />}
 
       <Routes>
         <Route path='/' element={<Home/>}/>

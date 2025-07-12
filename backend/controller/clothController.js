@@ -1,7 +1,7 @@
 
-import ItemModel from '../models/ClothModel';
-import UserModel from '../models/UserModel';
-import SwapModel from '../models/SwapModel';
+import ItemModel from '../models/ClothModel.js';
+import UserModel from '../models/UserModel.js';
+import SwapModel from '../models/SwapModel.js';
 
 export const createItem = async (req, res) => {
   try {

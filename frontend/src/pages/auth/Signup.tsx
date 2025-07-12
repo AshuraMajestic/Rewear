@@ -135,9 +135,9 @@ const SignupForm = () => {
         <div className="bg-gradient-to-br from-indigo-500 to-purple-600 flex flex-col justify-center items-center text-white text-center p-10 relative overflow-hidden">
           <div className="absolute inset-0 bg-black/20"></div>
           <div className="relative z-10">
-            <h1 className="text-5xl font-bold mb-4 tracking-wide">HOMESS</h1>
+            <h1 className="text-5xl font-bold mb-4 tracking-wide">ReWear</h1>
             <p className="text-lg opacity-90 leading-relaxed max-w-sm">
-              Join our community of real estate professionals and find your perfect property match.
+              Join our community of to swap and become fashionable.
             </p>
           </div>
           <div className="absolute top-0 right-0 w-64 h-64 bg-white/10 rounded-full -translate-y-32 translate-x-32"></div>
@@ -148,7 +148,7 @@ const SignupForm = () => {
         <div className="p-12 flex flex-col justify-center overflow-y-auto">
           <div className="text-center mb-8">
             <h2 className="text-3xl font-semibold text-gray-800 mb-2">Create Account</h2>
-            <p className="text-gray-600">Join HOMESS today</p>
+            <p className="text-gray-600">Join ReWear today</p>
           </div>
 
           {/* Error Message */}
