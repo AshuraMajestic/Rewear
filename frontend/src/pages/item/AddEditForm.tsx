@@ -59,7 +59,7 @@ export default function AddEditItem({
         setIsLoading(true);
         try {
             const response = await fetch(`${import.meta.env.VITE_APP_API_URL}/cloth/get-item-by-id/${itemId}`, {
-                method: 'POST',
+                method: 'GET',
                 headers: {
                     'Content-Type': 'application/json',
                 }

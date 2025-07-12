@@ -11,7 +11,7 @@ export interface Items {
   images:string[]
   createdAt: string
   views:number
-  user:{name:string}
+  user:{name:string,_id:string,email:string}
 }
 
 export interface FormItemType {

@@ -9,6 +9,7 @@ import adminRouter from './routes/adminRoutes.js';
 import uploadRouter from './routes/uploadRoutes.js'; 
 import userRouter from './routes/userRoutes.js'; 
 import clothRouter from './routes/clothRoutes.js'; 
+import swapRouter from './routes/swapRoutes.js'; 
 
 dotenv.config();
 
@@ -49,6 +50,7 @@ app.use('/api/admin',adminRouter)
 app.use('/api/user',userRouter)
 app.use('/api/cloth',clothRouter)
 app.use('/api/upload', uploadRouter)
+app.use('/api/swap', swapRouter)
 
 app.use((error, req, res, next) => {
   if (error instanceof multer.MulterError) {

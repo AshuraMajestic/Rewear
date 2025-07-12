@@ -1,7 +1,6 @@
 
 import ItemModel from '../models/ClothModel.js';
 import UserModel from '../models/UserModel.js';
-import SwapModel from '../models/SwapModel.js';
 
 export const createItem = async (req, res) => {
   try {
@@ -204,44 +203,6 @@ export const deleteItem = async (req, res) => {
 
     await item.deleteOne();
     res.json({ success: true, message: 'Item deleted' });
-  } catch (error) {
-    console.error(error);
-    res.status(500).json({ success: false, error: error.message });
-  }
-};
-
-
-const requestSwap = async (req, res) => {
-  try {
-    const userId = req.user.id;
-    const { offeredItemId, points } = req.body;
-    const item = await ItemModel.findById(req.params.id);
-    if (!item || item.status !== 'available') {
-      return res.status(400).json({ success: false, message: 'Item not available' });
-    }
-
-    if (points > 0) {
-      const user = await UserModel.findById(userId);
-      if (user.points < points) {
-        return res.status(400).json({ success: false, message: 'Insufficient points' });
-      }
-      user.points -= points;
-      await user.save();
-    }
-
-    const swap = await SwapModel.create({
-      requester: userId,
-      owner: item.user,
-      itemRequested: item._id,
-      itemOffered: offeredItemId || null,
-      pointsUsed: points || 0,
-      status: 'requested'
-    });
-
-    item.status = 'pending';
-    await item.save();
-
-    res.status(201).json({ success: true, swap });
   } catch (error) {
     console.error(error);
     res.status(500).json({ success: false, error: error.message });

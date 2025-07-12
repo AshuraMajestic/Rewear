@@ -1,20 +1,95 @@
-import React, { useState, useEffect } from 'react';
+import { useState, useEffect } from 'react';
 import { ChevronLeft, ChevronRight, Eye, Calendar, User, Package, Layers, Ruler, Shield, Activity } from 'lucide-react';
 import type { Items } from '../../types/Items';
-import { useParams } from 'react-router-dom';
+import { useParams, useNavigate } from 'react-router-dom';
+import { SwapRequestModal } from '../../components/SwapModel';
 
 export default function ItemsDetails() {
-  const id=useParams<{ id: string }>();
+  const id = useParams<{ id: string }>();
+  const navigate = useNavigate();
   const [item, setItem] = useState<Items | null>(null);
+  const [user, setUser] = useState<any>(null);
   const [currentImageIndex, setCurrentImageIndex] = useState(0);
   const [loading, setLoading] = useState(true);
+  const [showSwapModal, setShowSwapModal] = useState(false);
+  const [notification, setNotification] =
+    useState<{ message: string; type: 'success' | 'error' } | null>(null);
 
-  const fetchItems=async()=>{
+  const fetchItem = async () => {
+    setLoading(true);
+    try {
+      console.log(id)
+      const response = await fetch(`${import.meta.env.VITE_APP_API_URL}/cloth/get-item-by-id/${id.id}`, {
+        method: 'GET',
+        headers: {
+          'Content-Type': 'application/json',
+        }
+      });
 
+      const result = await response.json();
+
+      if (result.success) {
+        setItem(result.item)
+      } else {
+        showNotification('Failed to load item data.', 'error');
+      }
+    } catch (error) {
+      console.error('Fetch item error:', error);
+      showNotification('Error loading item data.', 'error');
+    } finally {
+      setLoading(false);
+    }
   }
+
+  const checkAuth = async () => {
+    const token = localStorage.getItem('token');
+    if (token) {
+      try {
+        const response = await fetch(`${import.meta.env.VITE_APP_API_URL as string}/user/get-profile`, {
+          method: 'GET',
+          headers: {
+            'Authorization': `Bearer ${token}`,
+          },
+        });
+
+        const data = await response.json();
+        if (data.success) {
+          setUser(data.userData)
+        } else {
+          localStorage.removeItem('token');
+          setUser(null);
+        }
+      } catch (error) {
+        localStorage.removeItem('token');
+        setUser(null);
+      }
+    }
+  };
+
   useEffect(() => {
-    fetchItems()
+    fetchItem();
+    checkAuth();
   }, [id]);
+
+  const showNotification = (
+    message: string,
+    type: 'success' | 'error'
+  ) => {
+    setNotification({ message, type });
+    setTimeout(() => setNotification(null), 3000);
+  };
+
+  const handleSwapRequest = () => {
+    if (!user) {
+      showNotification('Login required to request a swap', 'error');
+      setTimeout(() => {
+        navigate('/auth/login');
+      }, 1500);
+      return;
+    }
+
+    setShowSwapModal(true);
+  };
 
   const nextImage = () => {
     if (item && item.images.length > 0) {
@@ -64,6 +139,9 @@ export default function ItemsDetails() {
     }
   };
 
+  
+  const isOwner = user && item && user._id === item.user._id;
+
   if (loading) {
     return (
       <div className="min-h-screen bg-gray-50 flex items-center justify-center">
@@ -85,6 +163,14 @@ export default function ItemsDetails() {
 
   return (
     <div className="min-h-screen bg-gray-50">
+      {/* Notification */}
+      {notification && (
+        <div className={`fixed top-4 right-4 z-60 px-4 py-2 rounded-lg shadow-lg ${notification.type === 'success' ? 'bg-green-500' : 'bg-red-500'
+          } text-white`}>
+          {notification.message}
+        </div>
+      )}
+
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
         <div className="bg-white rounded-lg shadow-lg overflow-hidden">
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
@@ -102,7 +188,7 @@ export default function ItemsDetails() {
                     <Package size={64} />
                   </div>
                 )}
-                
+
                 {/* Navigation arrows */}
                 {item.images.length > 1 && (
                   <>
@@ -121,7 +207,7 @@ export default function ItemsDetails() {
                   </>
                 )}
               </div>
-              
+
               {/* Image indicators */}
               {item.images.length > 1 && (
                 <div className="flex justify-center mt-4 space-x-2">
@@ -129,14 +215,13 @@ export default function ItemsDetails() {
                     <button
                       key={index}
                       onClick={() => setCurrentImageIndex(index)}
-                      className={`w-3 h-3 rounded-full transition-all ${
-                        index === currentImageIndex ? 'bg-blue-600' : 'bg-gray-300'
-                      }`}
+                      className={`w-3 h-3 rounded-full transition-all ${index === currentImageIndex ? 'bg-blue-600' : 'bg-gray-300'
+                        }`}
                     />
                   ))}
                 </div>
               )}
-              
+
               {/* Thumbnail strip */}
               {item.images.length > 1 && (
                 <div className="mt-4 flex space-x-2 overflow-x-auto pb-2">
@@ -144,9 +229,8 @@ export default function ItemsDetails() {
                     <button
                       key={index}
                       onClick={() => setCurrentImageIndex(index)}
-                      className={`flex-shrink-0 w-16 h-16 rounded-lg overflow-hidden border-2 transition-all ${
-                        index === currentImageIndex ? 'border-blue-600' : 'border-gray-200'
-                      }`}
+                      className={`flex-shrink-0 w-16 h-16 rounded-lg overflow-hidden border-2 transition-all ${index === currentImageIndex ? 'border-blue-600' : 'border-gray-200'
+                        }`}
                     >
                       <img
                         src={image}
@@ -230,32 +314,51 @@ export default function ItemsDetails() {
                 </div>
               </div>
 
-              {/* Request Swap Button */}
-              <div className="space-y-3">
-                <button
-                  className="w-full bg-blue-600 hover:bg-blue-700 text-white font-semibold py-3 px-6 rounded-lg transition-colors duration-200 flex items-center justify-center"
-                  disabled={item.status.toLowerCase() !== 'available'}
-                >
-                  <Activity size={20} className="mr-2" />
-                  {item.status.toLowerCase() === 'available' ? 'Request Swap' : 'Not Available'}
-                </button>
-                <button className="w-full bg-gray-100 hover:bg-gray-200 text-gray-700 font-semibold py-3 px-6 rounded-lg transition-colors duration-200">
-                  Add to Wishlist
-                </button>
-              </div>
+              {/* Request Swap Button - Only show if not owner */}
+              {!isOwner && (
+                <div className="space-y-3">
+                  <button
+                    onClick={handleSwapRequest}
+                    className="w-full bg-blue-600 hover:bg-blue-700 text-white font-semibold py-3 px-6 rounded-lg transition-colors duration-200 flex items-center justify-center disabled:bg-gray-400 disabled:cursor-not-allowed"
+                    disabled={item.status.toLowerCase() !== 'available'}
+                  >
+                    <Activity size={20} className="mr-2" />
+                    {item.status.toLowerCase() === 'available' ? 'Request Swap' : 'Not Available'}
+                  </button>
+                </div>
+              )}
+
+              {/* Owner message */}
+              {isOwner && (
+                <div className="p-4 bg-blue-50 rounded-lg">
+                  <h4 className="font-semibold text-blue-900 mb-2">This is your item</h4>
+                  <p className="text-sm text-blue-700">
+                    You cannot swap with yourself. This item is part of your collection.
+                  </p>
+                </div>
+              )}
 
               {/* Additional info */}
-              <div className="mt-6 p-4 bg-gray-50 rounded-lg">
-                <h4 className="font-semibold text-gray-900 mb-2">Swap Information</h4>
-                <p className="text-sm text-gray-600">
-                  By requesting a swap, you'll enter into a negotiation with the item owner. 
-                  Make sure you have items of similar value to offer in return.
-                </p>
-              </div>
+              {!isOwner && (
+                <div className="mt-6 p-4 bg-gray-50 rounded-lg">
+                  <h4 className="font-semibold text-gray-900 mb-2">Swap Information</h4>
+                  <p className="text-sm text-gray-600">
+                    By requesting a swap, you'll enter into a negotiation with the item owner.
+                    Make sure you have items of similar value to offer in return.
+                  </p>
+                </div>
+              )}
             </div>
           </div>
         </div>
       </div>
+      <SwapRequestModal
+        isOpen={showSwapModal}
+        onClose={() => setShowSwapModal(false)}
+        targetItem={item}
+        user={user}
+        onSwapRequested={showNotification}
+      />
     </div>
   );
 }

@@ -42,7 +42,7 @@ const itemSchema = new mongoose.Schema({
   },
   status: {
     type: String,
-    enum: ['available', 'exchanged'],
+    enum: ['available', 'exchanged','pending'],
     default: 'available'
   },
   views:{
