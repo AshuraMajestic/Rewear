@@ -7,6 +7,9 @@ import { useEffect, useState, type ReactNode } from 'react';
 import Login from './pages/auth/Login';
 import AdminDashboard from './pages/dashboard/dashboard';
 import Navbar from './components/Navbar';
+import User from './pages/users/User';
+import Items from './pages/items/Items';
+import Requests from './pages/requests/Requests';
 
 
 interface ProtectedRouteProps {
@@ -86,7 +89,7 @@ function App() {
           path="/admin/users"
           element={
             <ProtectedRoute>
-              <AdminDashboard />
+              <User />
             </ProtectedRoute>
           }
         />
@@ -94,23 +97,16 @@ function App() {
           path="/admin/items"
           element={
             <ProtectedRoute>
-              <AdminDashboard />
+              <Items />
             </ProtectedRoute>
           }
         />
-        <Route
-          path="/admin/exchanges"
-          element={
-            <ProtectedRoute>
-              <AdminDashboard />
-            </ProtectedRoute>
-          }
-        />
+
         <Route
           path="/admin/requests"
           element={
             <ProtectedRoute>
-              <AdminDashboard />
+              <Requests />
             </ProtectedRoute>
           }
         />

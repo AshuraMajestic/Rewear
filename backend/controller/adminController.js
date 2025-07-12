@@ -176,3 +176,175 @@ export const getDashboardMetrics = async (req, res) => {
     });
   }
 };
+
+export const getAllUsers = async (req, res) => {
+  try {
+    // pull basic user info + count of their items
+    const users = await UserModel.aggregate([
+      {
+        $lookup: {
+          from: "items",         
+          localField: "_id",
+          foreignField: "user",
+          as: "items",
+        },
+      },
+      {
+        $project: {
+          name: 1,
+          email: 1,
+          points: 1,
+          createdAt: 1,
+          updatedAt: 1,
+          productCount: { $size: "$items" },
+        },
+      },
+      { $sort: { createdAt: -1 } },
+    ]);
+
+    res.json({ success: true, users });
+  } catch (err) {
+    console.error("Error fetching users:", err);
+    res.status(500).json({ success: false, message: "Internal server error" });
+  }
+};
+
+export const deleteUserById = async (req, res) => {
+  try {
+    const { id } = req.params;
+
+    const user = await UserModel.findById(id);
+    if (!user) {
+      return res.status(404).json({ success: false, message: "User not found" });
+    }
+
+    // remove the user
+    await user.deleteOne();
+
+    await ItemModel.deleteMany({ user: id });
+    await SwapModel.deleteMany({ $or: [{ requester: id }, { owner: id }] });
+
+    res.json({ success: true, message: "User deleted" });
+  } catch (err) {
+    console.error("Error deleting user:", err);
+    res.status(500).json({ success: false, message: "Internal server error" });
+  }
+};
+
+
+export const getAllItemsAdmin = async (req, res) => {
+  try {
+    const { search = '', status = 'all', page = 1, limit = 10 } = req.query;
+    const pageNum = Math.max(parseInt(page), 1);
+    const perPage = Math.max(parseInt(limit), 1);
+
+    // Build filter
+    const filter = {};
+    if (status !== 'all') filter.status = status;
+    if (search) {
+      const regex = new RegExp(search, 'i');
+      // join on owner name too -> we'll $lookup & $match below
+      filter.$or = [
+        { title: regex },
+        { category: regex }
+      ];
+    }
+
+    // Aggregation pipeline so we can match owner name
+    const pipeline = [
+      { $match: filter },
+      // join owner
+      {
+        $lookup: {
+          from: 'users',
+          localField: 'user',
+          foreignField: '_id',
+          as: 'owner'
+        }
+      },
+      { $unwind: '$owner' },
+    ];
+
+    // if search also on owner
+    if (search) {
+      const regex = new RegExp(search, 'i');
+      pipeline.push({
+        $match: {
+          $or: [
+            { title: regex },
+            { category: regex },
+            { 'owner.name': regex }
+          ]
+        }
+      });
+    }
+
+    // count total
+    const countPipeline = [...pipeline, { $count: 'total' }];
+    const countResult = await ItemModel.aggregate(countPipeline);
+    const totalItems = countResult[0]?.total || 0;
+    const totalPages = Math.ceil(totalItems / perPage);
+
+    // fetch page
+    pipeline.push({ $sort: { createdAt: -1 } });
+    pipeline.push({ $skip: (pageNum - 1) * perPage });
+    pipeline.push({ $limit: perPage });
+
+    // project only needed fields
+    pipeline.push({
+      $project: {
+        title: 1,
+        description: 1,
+        category: 1,
+        type: 1,
+        size: 1,
+        condition: 1,
+        status: 1,
+        views: 1,
+        point: 1,
+        images: 1,
+        createdAt: 1,
+        updatedAt: 1,
+        'owner._id': 1,
+        'owner.name': 1,
+        'owner.email': 1
+      }
+    });
+
+    const items = await ItemModel.aggregate(pipeline);
+
+    res.json({
+      success: true,
+      items,
+      pagination: {
+        currentPage: pageNum,
+        totalPages,
+        totalItems,
+        itemsPerPage: perPage
+      }
+    });
+  } catch (err) {
+    console.error('Error fetching admin items:', err);
+    res.status(500).json({ success: false, message: 'Internal server error' });
+  }
+};
+
+
+/**
+ * DELETE /admin/items/:id
+ * Permanently delete an item by its ID.
+ */
+export const deleteItemAdmin = async (req, res) => {
+  try {
+    const { id } = req.params;
+    const item = await ItemModel.findById(id);
+    if (!item) {
+      return res.status(404).json({ success: false, message: 'Item not found' });
+    }
+    await item.deleteOne();
+    res.json({ success: true, message: 'Item deleted' });
+  } catch (err) {
+    console.error('Error deleting item:', err);
+    res.status(500).json({ success: false, message: 'Internal server error' });
+  }
+};
