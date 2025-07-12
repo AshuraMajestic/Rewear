@@ -37,7 +37,7 @@ export default function Navbar() {
                 });
 
                 const data = await response.json();
-
+                console.log(data)
                 if (data.success) {
                     setIsAuthenticated(true);
                 } else {
