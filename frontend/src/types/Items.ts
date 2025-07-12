@@ -10,6 +10,8 @@ export interface Items {
   point:string
   images:string[]
   createdAt: string
+  views:number
+  user:{name:string}
 }
 
 export interface FormItemType {

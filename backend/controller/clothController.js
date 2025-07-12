@@ -5,7 +5,7 @@ import SwapModel from '../models/SwapModel.js';
 
 export const createItem = async (req, res) => {
   try {
-    const {userId} = req.user
+    const { userId } = req.user
     const userData = await UserModel.findById(userId).select('-password')
 
     if (!userData) {
@@ -13,15 +13,15 @@ export const createItem = async (req, res) => {
     }
 
     const data = {
-      user:        userId,
-      title:       req.body.title,
+      user: userId,
+      title: req.body.title,
       description: req.body.description,
-      category:    req.body.category,
-      type:        req.body.type,
-      point:       req.body.point,
-      size:        req.body.size,
-      condition:   req.body.condition,
-      images:      req.body.images,
+      category: req.body.category,
+      type: req.body.type,
+      point: req.body.point,
+      size: req.body.size,
+      condition: req.body.condition,
+      images: req.body.images,
     };
 
     const item = await ItemModel.create(data);
@@ -32,25 +32,87 @@ export const createItem = async (req, res) => {
   }
 };
 
-// Get all items, with optional status/category filters
+
 export const getItems = async (req, res) => {
   try {
-    const filter = {};
-    if (req.query.status)   filter.status   = req.query.status;
-    if (req.query.category) filter.category = req.query.category;
+    const filter = { status: 'available' };
+
+
+    if (req.query.category) {
+      filter.category = req.query.category;
+    }
+
+
+    if (req.query.condition) {
+      filter.condition = req.query.condition;
+    }
+
+
+    if (req.query.type) {
+      filter.type = { $regex: req.query.type, $options: 'i' };
+    }
+
+
+    if (req.query.minPoints || req.query.maxPoints) {
+      filter.point = {};
+      if (req.query.minPoints) {
+        filter.point.$gte = parseInt(req.query.minPoints);
+      }
+      if (req.query.maxPoints) {
+        filter.point.$lte = parseInt(req.query.maxPoints);
+      }
+    }
+
+
+    if (req.query.search) {
+      filter.$or = [
+        { title: { $regex: req.query.search, $options: 'i' } },
+        { description: { $regex: req.query.search, $options: 'i' } }
+      ];
+    }
+
+
+    const sortField = req.query.sortBy || 'createdAt';
+    const sortOrder = req.query.sortOrder === 'asc' ? 1 : -1;
+    const sortObj = { [sortField]: sortOrder };
+
+
+    const page = parseInt(req.query.page) || 1;
+    const limit = parseInt(req.query.limit) || 12;
+    const skip = (page - 1) * limit;
+
 
     const items = await ItemModel.find(filter)
       .populate('user', 'name')
-      .sort({ createdAt: -1 });
+      .sort(sortObj)
+      .skip(skip)
+      .limit(limit);
 
-    res.json({ success: true, items });
+
+    const totalItems = await ItemModel.countDocuments(filter);
+    const totalPages = Math.ceil(totalItems / limit);
+
+    res.json({
+      success: true,
+      items,
+      pagination: {
+        currentPage: page,
+        totalPages,
+        totalItems,
+        itemsPerPage: limit
+      }
+    });
+
   } catch (error) {
-    console.error(error);
-    res.status(500).json({ success: false, error: error.message });
+    console.error('Error in getItems:', error);
+    res.status(500).json({
+      success: false,
+      error: error.message
+    });
   }
 };
 
-// Get single item by ID
+
 export const getItemById = async (req, res) => {
   try {
     const item = await ItemModel.findById(req.params.id)
@@ -65,10 +127,10 @@ export const getItemById = async (req, res) => {
   }
 };
 
-// Get all items for the current user
+
 export const getItemsByUser = async (req, res) => {
   try {
-     const {userId} = req.user
+    const { userId } = req.user
     const userData = await UserModel.findById(userId).select('-password')
 
     if (!userData) {
@@ -84,10 +146,10 @@ export const getItemsByUser = async (req, res) => {
   }
 };
 
-// Update an existing item
+
 export const updateItem = async (req, res) => {
   try {
-     const {userId} = req.user
+    const { userId } = req.user
     const userData = await UserModel.findById(userId).select('-password')
 
     if (!userData) {
@@ -98,19 +160,19 @@ export const updateItem = async (req, res) => {
     if (!item) {
       return res.status(404).json({ success: false, message: 'Item not found' });
     }
-    if (item.user.toString() !== userId ) {
+    if (item.user.toString() !== userId) {
       return res.status(403).json({ success: false, message: 'Forbidden' });
     }
 
     Object.assign(item, {
-      title:       req.body.title,
+      title: req.body.title,
       description: req.body.description,
-      category:    req.body.category,
-      type:        req.body.type,
-      point:       req.body.point,
-      size:        req.body.size,
-      condition:   req.body.condition,
-      images:      req.body.images,
+      category: req.body.category,
+      type: req.body.type,
+      point: req.body.point,
+      size: req.body.size,
+      condition: req.body.condition,
+      images: req.body.images,
     });
 
     await item.save();
@@ -121,10 +183,10 @@ export const updateItem = async (req, res) => {
   }
 };
 
-// Delete an item
+
 export const deleteItem = async (req, res) => {
   try {
-     const {userId} = req.user
+    const { userId } = req.user
     const userData = await UserModel.findById(userId).select('-password')
 
     if (!userData) {
@@ -168,12 +230,12 @@ const requestSwap = async (req, res) => {
     }
 
     const swap = await SwapModel.create({
-      requester:      userId,
-      owner:          item.user,
-      itemRequested:  item._id,
-      itemOffered:    offeredItemId || null,
-      pointsUsed:     points || 0,
-      status:         'requested'
+      requester: userId,
+      owner: item.user,
+      itemRequested: item._id,
+      itemOffered: offeredItemId || null,
+      pointsUsed: points || 0,
+      status: 'requested'
     });
 
     item.status = 'pending';

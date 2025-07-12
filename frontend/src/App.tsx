@@ -10,6 +10,8 @@ import Profile from './pages/profile/Profile';
 import Footer from './components/Footer';
 import EditItem from './pages/item/EditItem';
 import AddItem from './pages/item/AddEditForm';
+import Items from './pages/item/Items';
+import ItemsDetails from './pages/item/ItemsDetails';
 
 interface ProtectedRouteProps {
   children: ReactNode;
@@ -81,6 +83,8 @@ function App() {
         <Route path='/' element={<Home/>}/>
         <Route path='/auth/signup' element={<SignupForm/>}/>
         <Route path='/auth/login' element={<LoginForm/>}/>
+        <Route path='/items' element={<Items/>}/>
+        <Route path='/items-detail/:id' element={<ItemsDetails/>}/>
         <Route
             path='/profile'
             element={
